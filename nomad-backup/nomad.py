@@ -6,9 +6,10 @@ import datetime
 from structuredmessage import StructuredMessage
 
 class Nomad():
-    def __init__(self, endpoint, backup_folder):
+    def __init__(self, endpoint, backup_folder, token):
         self.endpoint = endpoint
         self.backup_folder = backup_folder
+        self.token = token
         self.url = endpoint + 'operator/snapshot'
         
     def create_backup_folder_if_not_exist(self):
@@ -21,7 +22,11 @@ class Nomad():
         logger = log.settingup_logger()
         self.create_backup_folder_if_not_exist()
 
-        r = requests.get(self.url, allow_redirects=True)
+        headers = {}
+
+        if not self.token:
+            headers['X-Nomad-Token'] = self.token
+        r = requests.get(self.url, headers, allow_redirects=True)
 
         if (r.status_code == HTTPStatus.OK):
             try:

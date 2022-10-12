@@ -1,6 +1,7 @@
 {
   "nomad": {
     "endpoint": "http://localhost:4646/v1/",
-    "backup_folder": "/opt/backup/nomad/"
+    "backup_folder": "/opt/backup/nomad/",
+    "token": ""
   }
 }
