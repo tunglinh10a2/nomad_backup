@@ -26,17 +26,20 @@ class Nomad():
 
         if not self.token:
             headers['X-Nomad-Token'] = self.token
-        r = requests.get(self.url, headers, allow_redirects=True)
 
-        if (r.status_code == HTTPStatus.OK):
-            try:
-                if (r.headers.get('Content-Encoding') == 'gzip'):
-                    file_name_backup = 'backup_' + datetime.datetime.now().strftime('%Y_%m_%d_%HH_%MM_%SS') + '.tgz'
-                    file_path_backup = os.path.join(self.backup_folder, file_name_backup)
-                    with open(file_path_backup, 'wb') as f:
-                        f.write(r.content)
-                        f.close()
-            except:
-                logger.error(StructuredMessage(Timestamp=datetime.datetime.now().strftime('%Y %m %d %H:%M:%S'), Level='Error', Message='Saved failure'))
-        else:
-            logger.error(StructuredMessage(Timestamp=datetime.datetime.now().strftime('%Y %m %d %H:%M:%S'), Level='Error', Message='Download failure'))
+        try:
+            r = requests.get(self.url, headers, allow_redirects=True)
+            if (r.status_code == HTTPStatus.OK):
+                try:
+                    if (r.headers.get('Content-Encoding') == 'gzip'):
+                        file_name_backup = 'backup_' + datetime.datetime.now().strftime('%Y_%m_%d_%HH_%MM_%SS') + '.tgz'
+                        file_path_backup = os.path.join(self.backup_folder, file_name_backup)
+                        with open(file_path_backup, 'wb') as f:
+                            f.write(r.content)
+                            f.close()
+                except ValueError:
+                    logger.error(StructuredMessage(Timestamp=datetime.datetime.now().strftime('%Y %m %d %H:%M:%S'), Level='Error', Message='Saved failure', Exception=ValueError))
+        except ValueError:
+            logger.error(StructuredMessage(Timestamp=datetime.datetime.now().strftime('%Y %m %d %H:%M:%S'), Level='Error', Message='Download error', StatusCode=r.status_code,Content=r.content, Exception=ValueError))
+
+
