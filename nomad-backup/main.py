@@ -1,4 +1,5 @@
 from distutils.debug import DEBUG
+from http import HTTPStatus
 from time import timezone
 import requests
 import datetime
@@ -6,6 +7,7 @@ import os
 import pathlib
 import logging
 import json
+import yaml
 
 dest_folder = '/opt/backup/nomad/'
 if not os.path.exists(dest_folder):
@@ -21,11 +23,7 @@ r = requests.get(url, allow_redirects=True)
 
 # Create and configure logger
 log_file_info = log_folder + '/' + datetime.datetime.now().strftime('%Y_%m_%d') + '.log'
-logging.basicConfig(filename=log_file_info,
-                    format='%(message)s',
-                    filemode='a',
-                    level=logging.DEBUG
-                    )
+logging.basicConfig(filename=log_file_info,format='%(message)s',filemode='a',level=logging.DEBUG)
  
 # Creating an object
 logger = logging.getLogger()
@@ -36,9 +34,8 @@ class StructuredMessage(object):
 
     def __str__(self):
         return '%s' % (json.dumps(self.kwargs))
-m = StructuredMessage   # optional, to improve readability
 
-if (r.status_code == 200):
+if (r.status_code == HTTPStatus.OK):
     try:
         if (r.headers.get('Content-Encoding') == 'gzip'):
             file_name_backup = 'backup_' + datetime.datetime.now().strftime('%Y_%m_%d_%HH_%MM_%SS') + '.tgz'
@@ -47,7 +44,7 @@ if (r.status_code == 200):
                 f.write(r.content)
                 f.close()
     except:
-        logger.error(m(Timestamp=datetime.datetime.now().strftime('%Y %m %d %H:%M:%S'),Level='Error',Message='Saved failure'))
+        logger.error(StructuredMessage(Timestamp=datetime.datetime.now().strftime('%Y %m %d %H:%M:%S'),Level='Error',Message='Saved failure'))
 else:
-    logger.error(m(Timestamp=datetime.datetime.now().strftime('%Y %m %d %H:%M:%S'),Level='Error',Message='Download failure'))
+    logger.error(StructuredMessage(Timestamp=datetime.datetime.now().strftime('%Y %m %d %H:%M:%S'),Level='Error',Message='Download failure'))
 
