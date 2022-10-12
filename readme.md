@@ -18,3 +18,11 @@ vagrant ssh nomad-server
 ```
 http://localhost:4646
 ```
+
+
+## Run app
+```
+cd  /opt/nomad-backup
+
+python3 main.py
+```
